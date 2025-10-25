@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Servidor</title>
+</head>
+<body>
+    <h1>Prueba de Conectividad</h1>
+    <button onclick="probarServidor()">Probar Servidor</button>
+    <button onclick="probarGuardar()">Probar Guardar</button>
+    <div id="resultado"></div>
+
+    <script>
+        async function probarServidor() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = 'Probando...';
+            
+            try {
+                const response = await fetch('/api/gastos');
+                const data = await response.json();
+                resultado.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                resultado.innerHTML = 'Error: ' + error.message;
+            }
+        }
+
+        async function probarGuardar() {
+            const resultado = document.getElementById('resultado');
+            resultado.innerHTML = 'Guardando prueba...';
+            
+            try {
+                const response = await fetch('/api/guardar-gastos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        gastosFijosMensuales: [{
+                            id: 'test_' + Date.now(),
+                            descripcion: 'Prueba',
+                            importe: 10.00,
+                            fecha: '2025-10-14'
+                        }],
+                        gastosFijosSemestrales: [],
+                        gastosVariablesMensuales: [],
+                        gastosVariablesTrimestrales: []
+                    })
+                });
+                const data = await response.json();
+                resultado.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                resultado.innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

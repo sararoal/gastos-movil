@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Firebase</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f0f0f0;
+        }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        #log { 
+            background: #000; 
+            color: #0f0; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            height: 300px; 
+            overflow-y: auto; 
+            margin-top: 20px;
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico Firebase</h1>
+    
+    <div id="firebase-status" class="status info">
+        Iniciando diagnóstico...
+    </div>
+    
+    <button onclick="probarConexion()">🔄 Probar Conexión</button>
+    <button onclick="probarGuardar()">💾 Probar Guardar</button>
+    <button onclick="probarCargar()">📥 Probar Cargar</button>
+    <button onclick="limpiarLog()">🗑️ Limpiar Log</button>
+    
+    <div id="log"></div>
+
+    <script type="module">
+        const log = document.getElementById('log');
+        const statusDiv = document.getElementById('firebase-status');
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f00' : type === 'success' ? '#0f0' : '#fff';
+            log.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        window.addLog = addLog;
+        
+        // Interceptar errores
+        window.addEventListener('error', (e) => {
+            addLog(`❌ ERROR: ${e.message}`, 'error');
+        });
+        
+        // Interceptar console.log
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            addLog(`📝 ${args.join(' ')}`, 'info');
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            addLog(`❌ ${args.join(' ')}`, 'error');
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            addLog(`⚠️ ${args.join(' ')}`, 'warn');
+            originalWarn.apply(console, args);
+        };
+        
+        // Probar carga de Firebase
+        addLog('🔥 Iniciando prueba de Firebase...');
+        
+        try {
+            import('./firebase-config.js')
+                .then(configModule => {
+                    addLog('✅ firebase-config.js cargado correctamente', 'success');
+                    addLog(`📋 Project ID: ${configModule.default.projectId}`, 'info');
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Configuración cargada correctamente';
+                })
+                .catch(error => {
+                    addLog(`❌ Error cargando configuración: ${error.message}`, 'error');
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ Error en configuración';
+                });
+                
+            import('./firebase-database.js')
+                .then(async dbModule => {
+                    addLog('✅ firebase-database.js cargado correctamente', 'success');
+                    
+                    // Probar inicialización
+                    const firebaseDB = dbModule.default;
+                    const iniciado = await firebaseDB.init();
+                    
+                    if (iniciado) {
+                        addLog('✅ Firebase inicializado correctamente', 'success');
+                        statusDiv.className = 'status success';
+                        statusDiv.textContent = '✅ Firebase conectado y listo';
+                    } else {
+                        addLog('❌ Error inicializando Firebase', 'error');
+                        statusDiv.className = 'status error';
+                        statusDiv.textContent = '❌ Error inicializando Firebase';
+                    }
+                })
+                .catch(error => {
+                    addLog(`❌ Error cargando database: ${error.message}`, 'error');
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '❌ Error en base de datos';
+                });
+        } catch (error) {
+            addLog(`❌ Error general: ${error.message}`, 'error');
+        }
+        
+        // Funciones globales
+        window.probarConexion = async function() {
+            addLog('🔍 Probando conexión...');
+            try {
+                const { default: firebaseDB } = await import('./firebase-database.js');
+                const disponible = firebaseDB.isAvailable();
+                
+                if (disponible) {
+                    addLog('✅ Firebase disponible', 'success');
+                } else {
+                    addLog('❌ Firebase no disponible', 'error');
+                }
+            } catch (error) {
+                addLog(`❌ Error probando conexión: ${error.message}`, 'error');
+            }
+        };
+        
+        window.probarGuardar = async function() {
+            addLog('💾 Probando guardar datos...');
+            try {
+                const { default: firebaseDB } = await import('./firebase-database.js');
+                
+                const datosTest = {
+                    fijosMensuales: [{
+                        id: 'test_' + Date.now(),
+                        descripcion: 'Prueba Firebase',
+                        importe: 99.99,
+                        fecha: '2025-10-14'
+                    }],
+                    fijosSemestrales: [],
+                    variablesMensuales: [],
+                    variablesTrimestrales: []
+                };
+                
+                const resultado = await firebaseDB.guardarGastos(datosTest);
+                addLog(`✅ Datos guardados: ${resultado.message}`, 'success');
+                
+            } catch (error) {
+                addLog(`❌ Error guardando: ${error.message}`, 'error');
+            }
+        };
+        
+        window.probarCargar = async function() {
+            addLog('📥 Probando cargar datos...');
+            try {
+                const { default: firebaseDB } = await import('./firebase-database.js');
+                
+                const resultado = await firebaseDB.cargarGastos();
+                if (resultado.success) {
+                    addLog(`✅ Datos cargados: ${JSON.stringify(resultado.data, null, 2)}`, 'success');
+                } else {
+                    addLog(`❌ Error en respuesta: ${JSON.stringify(resultado)}`, 'error');
+                }
+                
+            } catch (error) {
+                addLog(`❌ Error cargando: ${error.message}`, 'error');
+            }
+        };
+        
+        window.limpiarLog = function() {
+            log.innerHTML = '';
+        };
+    </script>
+</body>
+</html>

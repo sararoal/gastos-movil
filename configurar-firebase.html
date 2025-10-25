@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Firebase - Gastos Móvil</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #66CDAA;
+        }
+        
+        .step h3 {
+            color: #20B2AA;
+            margin-top: 0;
+        }
+        
+        .code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #66CDAA 0%, #20B2AA 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .config-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .config-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .config-form label {
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Configuración de Firebase</h1>
+        
+        <div class="success">
+            <strong>¡Genial!</strong> Estás configurando Firebase para tener una base de datos en la nube que funcione 24/7 sin necesidad de tener el PC encendido.
+        </div>
+
+        <div class="step">
+            <h3>📝 Paso 1: Crear proyecto en Firebase</h3>
+            <p>1. Ve a <a href="https://console.firebase.google.com/" target="_blank" class="btn">Firebase Console</a></p>
+            <p>2. Haz clic en <strong>"Crear un proyecto"</strong></p>
+            <p>3. Nombre del proyecto: <code>gastos-movil</code></p>
+            <p>4. Desactiva Google Analytics (no lo necesitamos)</p>
+            <p>5. Haz clic en <strong>"Crear proyecto"</strong></p>
+        </div>
+
+        <div class="step">
+            <h3>🗄️ Paso 2: Configurar Firestore Database</h3>
+            <p>1. En el menú lateral, ve a <strong>"Firestore Database"</strong></p>
+            <p>2. Haz clic en <strong>"Crear base de datos"</strong></p>
+            <p>3. Selecciona <strong>"Empezar en modo de prueba"</strong></p>
+            <p>4. Elige la ubicación más cercana (ej: europe-west3)</p>
+            <p>5. Haz clic en <strong>"Hecho"</strong></p>
+            
+            <div class="warning">
+                <strong>⚠️ Importante:</strong> Después de 30 días tendrás que configurar reglas de seguridad, pero por ahora funcionará perfectamente.
+            </div>
+        </div>
+
+        <div class="step">
+            <h3>🌐 Paso 3: Registrar aplicación web</h3>
+            <p>1. En "Descripción general del proyecto", haz clic en el ícono <strong>"&lt;/&gt;"</strong> (Web)</p>
+            <p>2. Nombre de la app: <code>Gastos Móvil Web</code></p>
+            <p>3. <strong>NO</strong> marques "Firebase Hosting"</p>
+            <p>4. Haz clic en <strong>"Registrar app"</strong></p>
+        </div>
+
+        <div class="step">
+            <h3>🔑 Paso 4: Copiar configuración</h3>
+            <p>Firebase te mostrará un código como este:</p>
+            <div class="code">
+const firebaseConfig = {
+  apiKey: "AIzaSyC...",
+  authDomain: "gastos-movil-12345.firebaseapp.com",
+  projectId: "gastos-movil-12345",
+  storageBucket: "gastos-movil-12345.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456"
+};
+            </div>
+            <p><strong>Copia SOLO los valores</strong> y pégalos en el formulario de abajo:</p>
+        </div>
+
+        <div class="config-form">
+            <h3>✏️ Configurar credenciales de Firebase</h3>
+            <form id="configForm">
+                <label for="apiKey">API Key:</label>
+                <input type="text" id="apiKey" placeholder="AIzaSyC..." required>
+                
+                <label for="authDomain">Auth Domain:</label>
+                <input type="text" id="authDomain" placeholder="gastos-movil-12345.firebaseapp.com" required>
+                
+                <label for="projectId">Project ID:</label>
+                <input type="text" id="projectId" placeholder="gastos-movil-12345" required>
+                
+                <label for="storageBucket">Storage Bucket:</label>
+                <input type="text" id="storageBucket" placeholder="gastos-movil-12345.appspot.com" required>
+                
+                <label for="messagingSenderId">Messaging Sender ID:</label>
+                <input type="text" id="messagingSenderId" placeholder="123456789" required>
+                
+                <label for="appId">App ID:</label>
+                <input type="text" id="appId" placeholder="1:123456789:web:abcdef123456" required>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">
+                    💾 Guardar Configuración
+                </button>
+            </form>
+        </div>
+
+        <div class="step">
+            <h3>🚀 Paso 5: ¡Listo!</h3>
+            <p>Una vez guardada la configuración:</p>
+            <p>1. Abre <code>index.html</code> en tu navegador</p>
+            <p>2. Tus gastos se guardarán automáticamente en la nube</p>
+            <p>3. Tu pareja podrá ver los mismos datos desde cualquier dispositivo</p>
+            <p>4. Los datos persistirán aunque borres la caché del navegador</p>
+            
+            <a href="index.html" class="btn">🏠 Ir a la aplicación</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('configForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const config = {
+                apiKey: document.getElementById('apiKey').value,
+                authDomain: document.getElementById('authDomain').value,
+                projectId: document.getElementById('projectId').value,
+                storageBucket: document.getElementById('storageBucket').value,
+                messagingSenderId: document.getElementById('messagingSenderId').value,
+                appId: document.getElementById('appId').value
+            };
+            
+            // Generar el archivo de configuración
+            const configContent = `// firebase-config.js
+const firebaseConfig = {
+    apiKey: "${config.apiKey}",
+    authDomain: "${config.authDomain}",
+    projectId: "${config.projectId}",
+    storageBucket: "${config.storageBucket}",
+    messagingSenderId: "${config.messagingSenderId}",
+    appId: "${config.appId}"
+};
+
+export default firebaseConfig;`;
+            
+            // Crear y descargar el archivo
+            const blob = new Blob([configContent], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'firebase-config.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('¡Configuración guardada! Se ha descargado el archivo firebase-config.js. Reemplaza el archivo existente con este nuevo.');
+        });
+    </script>
+</body>
+</html>

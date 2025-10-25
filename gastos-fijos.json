@@ -1,0 +1,42 @@
+{
+  "gastosFijosMensuales": [
+    {
+      "id": "fm001",
+      "descripcion": "Hipoteca",
+      "importe": 490.75,
+      "fecha": "2025-11-01",
+      "activo": true,
+      "categoria": "vivienda"
+    },
+    {
+      "id": "fm002",
+      "descripcion": "Internet",
+      "importe": 19.99,
+      "fecha": "2025-11-01",
+      "activo": true,
+      "categoria": "servicios"
+    },
+    {
+      "id": "fm003",
+      "descripcion": "Seguro de Vida",
+      "importe": 21.64,
+      "fecha": "2025-11-01",
+      "activo": true,
+      "categoria": "seguros"
+    },
+    {
+      "id": "fm004",
+      "descripcion": "Seguro del Hogar",
+      "importe": 40.51,
+      "fecha": "2025-11-01",
+      "activo": true,
+      "categoria": "seguros"
+    }
+  ],
+  "gastosVariablesMensuales": [],
+  "configuracion": {
+    "version": "1.0",
+    "fechaActualizacion": "2025-10-25",
+    "moneda": "EUR"
+  }
+}

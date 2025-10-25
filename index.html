@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gestión de Gastos Móvil</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-wallet"></i> Gestión de Gastos</h1>
+        </header>
+
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="gastos-fijos">Gastos Fijos</button>
+            <button class="tab-btn" data-tab="gastos-variables">Gastos Variables</button>
+            <button class="tab-btn" data-tab="vacaciones">Vacaciones</button>
+            <button class="tab-btn" data-tab="resumen">Resumen</button>
+        </nav>
+
+        <!-- GASTOS FIJOS -->
+        <div id="gastos-fijos" class="tab-content active">
+            <div class="section">
+                <h2><i class="fas fa-calendar-check"></i> Gastos Fijos Mensuales</h2>
+                
+                <!-- Botón para mostrar formulario -->
+                <button class="btn-primary show-form-btn" data-form="form-fijos-mensuales">
+                    <i class="fas fa-plus"></i> Agregar Gasto
+                </button>
+                
+                <div class="form-container" id="container-form-fijos-mensuales" style="display: none;">
+                    <form id="form-fijos-mensuales">
+                        <div class="form-group">
+                            <label for="fecha-fijo-mensual">Fecha:</label>
+                            <input type="date" id="fecha-fijo-mensual" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcion-fijo-mensual">Descripción:</label>
+                            <select id="descripcion-fijo-mensual">
+                                <option value="">Seleccionar o escribir...</option>
+                                <option value="Hipoteca" selected>Hipoteca</option>
+                                <option value="Internet">Internet</option>
+                                <option value="Seguro de Vida">Seguro de Vida</option>
+                                <option value="Seguro del Hogar">Seguro del Hogar</option>
+                                <option value="custom">Otro (personalizado)</option>
+                            </select>
+                            <input type="text" id="descripcion-custom-fijo-mensual" placeholder="Descripción personalizada" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label for="importe-fijo-mensual">Importe (€):</label>
+                            <input type="number" id="importe-fijo-mensual" step="0.01" min="0" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                        <button type="button" class="btn-secondary cancel-form-btn" data-form="form-fijos-mensuales">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="gastos-list" id="lista-fijos-mensuales">
+                    <!-- Los gastos se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- GASTOS VARIABLES -->
+        <div id="gastos-variables" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-chart-line"></i> Gastos Variables Mensuales</h2>
+                
+                <!-- Botón para mostrar formulario -->
+                <button class="btn-primary show-form-btn" data-form="form-variables-mensuales">
+                    <i class="fas fa-plus"></i> Agregar Gasto
+                </button>
+                
+                <div class="form-container" id="container-form-variables-mensuales" style="display: none;">
+                    <form id="form-variables-mensuales">
+                        <div class="form-group">
+                            <label for="fecha-variable-mensual">Fecha:</label>
+                            <input type="date" id="fecha-variable-mensual" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcion-variable-mensual">Descripción:</label>
+                            <select id="descripcion-variable-mensual">
+                                <option value="">Seleccionar o escribir...</option>
+                                <option value="Luz" selected>Luz</option>
+                                <option value="Agua">Agua</option>
+                                <option value="Supermercado">Supermercado</option>
+                                <option value="Gasolina">Gasolina</option>
+                                <option value="Restaurantes">Restaurantes</option>
+                                <option value="Ocio">Ocio</option>
+                                <option value="custom">Otro (personalizado)</option>
+                            </select>
+                            <input type="text" id="descripcion-custom-variable-mensual" placeholder="Descripción personalizada" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label for="importe-variable-mensual">Importe (€):</label>
+                            <input type="number" id="importe-variable-mensual" step="0.01" min="0" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Guardar Gasto
+                        </button>
+                        <button type="button" class="btn-secondary cancel-form-btn" data-form="form-variables-mensuales">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="gastos-list" id="lista-variables-mensuales">
+                    <!-- Los gastos se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- VACACIONES -->
+        <div id="vacaciones" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-plane"></i> Gastos de Vacaciones</h2>
+                
+                <!-- Botón para mostrar formulario -->
+                <button class="btn-primary show-form-btn" data-form="form-vacaciones">
+                    <i class="fas fa-plus"></i> Agregar Gasto de Vacaciones
+                </button>
+                
+                <div class="form-container" id="container-form-vacaciones" style="display: none;">
+                    <form id="form-vacaciones">
+                        <div class="form-group">
+                            <label for="fecha-vacacion">Fecha:</label>
+                            <input type="date" id="fecha-vacacion" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descripcion-vacacion">Categoría de Vacaciones:</label>
+                            <select id="descripcion-vacacion" required>
+                                <option value="">Seleccionar categoría...</option>
+                                <option value="Hotel" selected>Hotel</option>
+                                <option value="Coche">Coche</option>
+                                <option value="Restaurante">Restaurante</option>
+                                <option value="Avión">Avión</option>
+                                <option value="Ocio">Ocio</option>
+                                <option value="Gasolina">Gasolina</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Excursiones">Excursiones</option>
+                                <option value="Compras">Compras</option>
+                                <option value="custom">Otro (personalizado)</option>
+                            </select>
+                            <input type="text" id="descripcion-custom-vacacion" placeholder="Descripción personalizada" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label for="importe-vacacion">Importe (€):</label>
+                            <input type="number" id="importe-vacacion" step="0.01" min="0" required>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Guardar Gasto
+                        </button>
+                        <button type="button" class="btn-secondary cancel-form-btn" data-form="form-vacaciones">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
+
+                <div class="gastos-list" id="lista-vacaciones">
+                    <!-- Los gastos de vacaciones se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- RESUMEN -->
+        <div id="resumen" class="tab-content">
+            <div class="section">
+                <h2><i class="fas fa-chart-pie"></i> Resumen por Descripción</h2>
+                
+                <!-- Filtro por fecha -->
+                <div class="filtro-fecha">
+                    <label for="filtro-mes">Filtrar por mes:</label>
+                    <select id="filtro-mes" class="form-select">
+                        <option value="todos">Todos los meses</option>
+                    </select>
+                </div>
+                
+                <div class="resumen-filtros">
+                    <button class="btn-filter active" data-filter="todos">Todos</button>
+                    <button class="btn-filter" data-filter="fijos">Gastos Fijos</button>
+                    <button class="btn-filter" data-filter="variables">Gastos Variables</button>
+                    <button class="btn-filter" data-filter="vacaciones">Vacaciones</button>
+                </div>
+
+                <div class="resumen-stats">
+                    <div class="stat-card">
+                        <div class="stat-title">Total General</div>
+                        <div class="stat-amount" id="resumen-total-general">0.00 €</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Número de Gastos</div>
+                        <div class="stat-count" id="resumen-total-gastos">0</div>
+                    </div>
+                </div>
+
+                <div class="resumen-desglose" id="resumen-desglose">
+                    <!-- El desglose se mostrará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de emergencia para pestañas -->
+    <script>
+        // Función helper para obtener fecha actual
+        function obtenerFechaActual() {
+            return new Date().toISOString().split('T')[0];
+        }
+        
+        // Función de pestañas simplificada
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Configurando pestañas...');
+            
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            console.log('📋 Botones:', tabButtons.length, '📄 Contenidos:', tabContents.length);
+            
+            // Configurar click en cada botón
+            tabButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    console.log('🖱️ Click:', targetTab);
+                    
+                    // Remover active de todo
+                    tabButtons.forEach(function(btn) {
+                        btn.classList.remove('active');
+                    });
+                    tabContents.forEach(function(content) {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Activar el clickeado
+                    this.classList.add('active');
+                    const target = document.getElementById(targetTab);
+                    if (target) {
+                        target.classList.add('active');
+                        console.log('✅ Activado:', targetTab);
+                    }
+                });
+            });
+            
+            // Configurar manejo de descripciones personalizadas
+            console.log('🔧 Configurando descripciones personalizadas...');
+            const selects = document.querySelectorAll('select[id*="descripcion"]');
+            console.log('📋 Selects encontrados:', selects.length);
+            
+            selects.forEach(function(select) {
+                const customInput = document.querySelector('#' + select.id.replace('descripcion', 'descripcion-custom'));
+                if (customInput) {
+                    select.addEventListener('change', function() {
+                        if (this.value === 'custom') {
+                            customInput.style.display = 'block';
+                            customInput.required = true;
+                        } else {
+                            customInput.style.display = 'none';
+                            customInput.required = false;
+                            customInput.value = '';
+                        }
+                    });
+                }
+            });
+            
+            // Configurar botones de filtro del resumen
+            console.log('🔧 Configurando botones de filtro del resumen...');
+            const filterButtons = document.querySelectorAll('.btn-filter');
+            console.log('📋 Botones de filtro:', filterButtons.length);
+            
+            filterButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    console.log('🖱️ Filtro clickeado:', filter);
+                    
+                    // Remover active de todos los botones
+                    filterButtons.forEach(function(btn) {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Activar el clickeado
+                    this.classList.add('active');
+                    
+                    // Notificar al gestor principal si está disponible
+                    if (window.gestor && window.gestor.aplicarFiltroResumen) {
+                        window.gestor.aplicarFiltroResumen(filter);
+                    }
+                    
+                    console.log('✅ Filtro activado:', filter);
+                });
+            });
+            
+            // Configurar event listeners adicionales para debugging
+            console.log('🔧 Configurando event listeners adicionales...');
+            
+            // Event listener directo para el formulario de vacaciones
+            const formVacaciones = document.getElementById('form-vacaciones');
+            if (formVacaciones) {
+                console.log('✅ Formulario de vacaciones encontrado, agregando event listener directo');
+                formVacaciones.addEventListener('submit', function(e) {
+                    console.log('🎯 Event listener directo: Submit en form-vacaciones ejecutado');
+                    e.preventDefault();
+                    
+                    // Verificar que gestor esté disponible
+                    if (window.gestor && window.gestor.agregarGasto) {
+                        console.log('🔄 Llamando a window.gestor.agregarGasto(vacaciones)');
+                        window.gestor.agregarGasto('vacaciones');
+                    } else {
+                        console.error('❌ window.gestor no está disponible');
+                    }
+                });
+            } else {
+                console.error('❌ No se encontró el formulario de vacaciones');
+            }
+            
+            // Event listener directo para el botón de submit
+            const submitBtnVacaciones = document.querySelector('#form-vacaciones button[type="submit"]');
+            if (submitBtnVacaciones) {
+                console.log('✅ Botón submit de vacaciones encontrado');
+                submitBtnVacaciones.addEventListener('click', function(e) {
+                    console.log('🖱️ Click directo en botón submit de vacaciones');
+                });
+            }
+            
+            console.log('✅ Todo configurado');
+        });
+    </script>
+    
+    <script type="module" src="script.js"></script>
+</body>
+</html>
