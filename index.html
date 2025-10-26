@@ -2,7 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="                            <select id="descripcion-variable-mensual" required>
+                                <option value="">Seleccionar gasto...</option>
+                                <option value="Luz"><i class="fas fa-lightbulb"></i> Luz</option>
+                                <option value="Agua"><i class="fas fa-tint"></i> Agua</option>
+                                <option value="Supermercado"><i class="fas fa-shopping-cart"></i> Supermercado</option>
+                                <option value="Gasolina"><i class="fas fa-gas-pump"></i> Gasolina</option>
+                                <option value="Restaurantes"><i class="fas fa-utensils"></i> Restaurantes</option>
+                                <option value="Ocio"><i class="fas fa-gamepad"></i> Ocio</option>
+                                <option value="custom"><i class="fas fa-plus"></i> Otro (personalizado)</option>
+                            </select>content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestión de Gastos Móvil</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -136,16 +145,13 @@
                             <label for="descripcion-vacacion">Categoría de Vacaciones:</label>
                             <select id="descripcion-vacacion" required>
                                 <option value="">Seleccionar categoría...</option>
-                                <option value="Hotel" selected>Hotel</option>
-                                <option value="Coche">Coche</option>
-                                <option value="Restaurante">Restaurante</option>
-                                <option value="Avión">Avión</option>
-                                <option value="Ocio">Ocio</option>
-                                <option value="Gasolina">Gasolina</option>
-                                <option value="Transporte">Transporte</option>
-                                <option value="Excursiones">Excursiones</option>
-                                <option value="Compras">Compras</option>
-                                <option value="custom">Otro (personalizado)</option>
+                                <option value="Avión"><i class="fas fa-plane"></i> Avión</option>
+                                <option value="Hotel" selected><i class="fas fa-bed"></i> Hotel</option>
+                                <option value="Coche"><i class="fas fa-car"></i> Coche</option>
+                                <option value="Gasolina"><i class="fas fa-gas-pump"></i> Gasolina</option>
+                                <option value="Restaurante"><i class="fas fa-utensils"></i> Restaurante</option>
+                                <option value="Ocio"><i class="fas fa-cocktail"></i> Ocio</option>
+                                <option value="custom"><i class="fas fa-plus"></i> Otro (personalizado)</option>
                             </select>
                             <input type="text" id="descripcion-custom-vacacion" placeholder="Descripción personalizada" style="display: none;">
                         </div>
@@ -297,27 +303,8 @@
             // Configurar event listeners adicionales para debugging
             console.log('🔧 Configurando event listeners adicionales...');
             
-            // Event listener directo para el formulario de vacaciones
-            const formVacaciones = document.getElementById('form-vacaciones');
-            if (formVacaciones) {
-                console.log('✅ Formulario de vacaciones encontrado, agregando event listener directo');
-                formVacaciones.addEventListener('submit', function(e) {
-                    console.log('🎯 Event listener directo: Submit en form-vacaciones ejecutado');
-                    e.preventDefault();
-                    
-                    // Verificar que gestor esté disponible
-                    if (window.gestor && window.gestor.agregarGasto) {
-                        console.log('🔄 Llamando a window.gestor.agregarGasto(vacaciones)');
-                        window.gestor.agregarGasto('vacaciones');
-                    } else {
-                        console.error('❌ window.gestor no está disponible');
-                    }
-                });
-            } else {
-                console.error('❌ No se encontró el formulario de vacaciones');
-            }
-            
-            // Event listener directo para el botón de submit
+            // Event listeners configurados en script.js, no duplicar aquí
+            console.log('🔧 Event listeners se configuran en script.js setupEventListeners()');
             const submitBtnVacaciones = document.querySelector('#form-vacaciones button[type="submit"]');
             if (submitBtnVacaciones) {
                 console.log('✅ Botón submit de vacaciones encontrado');

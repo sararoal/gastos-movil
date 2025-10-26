@@ -223,6 +223,85 @@ class GestorGastos {
                 this.aplicarFiltroResumen(filtro);
             });
         });
+
+        // Configurar filtro de mes
+        this.inicializarFiltroMes();
+        const filtroMes = document.getElementById('filtro-mes');
+        if (filtroMes) {
+            filtroMes.addEventListener('change', () => {
+                // Obtener el filtro de categoría activo
+                const categoriaActiva = document.querySelector('.btn-filter.active');
+                const filtroCategoria = categoriaActiva ? categoriaActiva.dataset.filter : 'todos';
+                
+                // Aplicar filtro combinando categoría y mes
+                this.aplicarFiltroResumen(filtroCategoria);
+            });
+        }
+    }
+
+    // Inicializar el filtro de mes con los meses disponibles
+    inicializarFiltroMes() {
+        const filtroMes = document.getElementById('filtro-mes');
+        if (!filtroMes) return;
+
+        // Obtener todos los meses únicos de todos los gastos
+        const mesesDisponibles = new Set();
+        
+        ['fijosMensuales', 'variablesMensuales', 'vacaciones'].forEach(categoria => {
+            this.gastos[categoria].forEach(gasto => {
+                if (gasto.fecha) {
+                    // Convertir fecha dd-mm-aa a formato para agrupar por mes/año
+                    const fechaParts = gasto.fecha.split('-');
+                    if (fechaParts.length === 3) {
+                        const mes = fechaParts[1];
+                        let año = fechaParts[2];
+                        
+                        // Manejar años de 2 dígitos de forma inteligente
+                        if (año.length === 2) {
+                            const añoNum = parseInt(año);
+                            const añoActual = new Date().getFullYear();
+                            const añoActualCorto = añoActual % 100; // Últimos 2 dígitos del año actual
+                            
+                            // Si el año es menor o igual al año actual (en 2 dígitos), asumir siglo 21
+                            // Si es mayor, podría ser del siglo pasado, pero para esta app asumir siglo 21
+                            año = `20${año}`;
+                            
+                            console.log(`📅 Año convertido: ${fechaParts[2]} → ${año}`);
+                        }
+                        
+                        const fechaKey = `${año}-${mes}`;
+                        mesesDisponibles.add(fechaKey);
+                    }
+                }
+            });
+        });
+
+        // Ordenar meses por fecha (más reciente primero)
+        const mesesOrdenados = Array.from(mesesDisponibles).sort((a, b) => b.localeCompare(a));
+
+        // Limpiar el select y agregar opción "Todos"
+        filtroMes.innerHTML = '<option value="todos">Todos los meses</option>';
+
+        // Agregar cada mes disponible
+        mesesOrdenados.forEach(fechaKey => {
+            const [año, mes] = fechaKey.split('-');
+            const nombreMes = this.obtenerNombreMes(parseInt(mes));
+            const option = document.createElement('option');
+            option.value = fechaKey;
+            option.textContent = `${nombreMes} ${año}`;
+            filtroMes.appendChild(option);
+        });
+
+        console.log(`📅 Filtro de mes inicializado con ${mesesOrdenados.length} meses disponibles`);
+    }
+
+    // Obtener nombre del mes
+    obtenerNombreMes(numeroMes) {
+        const meses = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+        return meses[numeroMes - 1] || 'Mes';
     }
 
     // Aplicar filtro al resumen
@@ -230,6 +309,10 @@ class GestorGastos {
         const desglosePorDescripcion = {};
         let totalGastos = 0;
         let totalImporte = 0;
+
+        // Obtener filtro de mes seleccionado
+        const filtroMes = document.getElementById('filtro-mes');
+        const mesSeleccionado = filtroMes ? filtroMes.value : 'todos';
 
         // Determinar qué categorías incluir según el filtro
         let categoriasAIncluir = [];
@@ -246,6 +329,26 @@ class GestorGastos {
         // Recopilar datos de las categorías seleccionadas
         categoriasAIncluir.forEach(categoria => {
             this.gastos[categoria].forEach(gasto => {
+                // Aplicar filtro de mes si está seleccionado
+                if (mesSeleccionado !== 'todos') {
+                    const fechaParts = gasto.fecha.split('-');
+                    if (fechaParts.length === 3) {
+                        const mes = fechaParts[1];
+                        let año = fechaParts[2];
+                        
+                        // Aplicar la misma lógica de conversión de años
+                        if (año.length === 2) {
+                            año = `20${año}`;
+                        }
+                        
+                        const fechaKey = `${año}-${mes}`;
+                        
+                        // Si no coincide con el mes seleccionado, saltar este gasto
+                        if (fechaKey !== mesSeleccionado) {
+                            return;
+                        }
+                    }
+                }
                 const descripcion = gasto.descripcion;
                 let tipo = '';
                 if (categoria === 'fijosMensuales') tipo = 'Fijo';
@@ -334,6 +437,13 @@ class GestorGastos {
 
     // Agregar nuevo gasto
     agregarGasto(categoria) {
+        // Prevenir ejecuciones múltiples simultáneas
+        if (this.procesandoGasto) {
+            console.log(`⏳ agregarGasto: Ya se está procesando un gasto, ignorando...`);
+            return;
+        }
+        
+        this.procesandoGasto = true;
         console.log(`💰 agregarGasto: Iniciando para categoría: ${categoria}`);
         
         const formPrefix = this.getFormPrefix(categoria);
@@ -355,6 +465,7 @@ class GestorGastos {
         if (!fechaElement || !descripcionSelectElement || !importeElement) {
             console.error('❌ agregarGasto: Elementos del formulario no encontrados');
             alert('Error: No se pudieron encontrar los campos del formulario');
+            this.procesandoGasto = false;
             return;
         }
         
@@ -383,40 +494,56 @@ class GestorGastos {
             
             if (!subcategoria) {
                 alert('Por favor, selecciona una subcategoría para Vacaciones');
+                this.procesandoGasto = false;
                 return;
             }
             
             descripcion = `Vacaciones - ${subcategoria}`;
         }
 
-        // Validaciones más específicas
+        // Validaciones más específicas y robustas
         console.log(`🔍 agregarGasto: Validando campos...`);
         console.log(`   - Fecha: "${fecha}" (válida: ${!!fecha})`);
-        console.log(`   - Descripción: "${descripcion}" (válida: ${!!descripcion && descripcion.trim() !== ''})`);
-        console.log(`   - Importe: ${importe} (válido: ${!isNaN(importe) && importe > 0})`);
+        console.log(`   - Descripción: "${descripcion}" (válida: ${!!descripcion && descripcion.trim() !== '' && descripcion !== 'Seleccionar'})`);
+        console.log(`   - Importe raw: "${importeElement.value}", parseado: ${importe} (válido: ${!isNaN(importe) && importe > 0})`);
 
-        if (!fecha) {
+        // Validar fecha
+        if (!fecha || fecha.trim() === '') {
             console.error(`❌ agregarGasto: Fecha vacía`);
-            alert('Por favor, selecciona una fecha');
+            this.mostrarMensaje('Por favor, selecciona una fecha', 'error');
+            this.procesandoGasto = false;
             return;
         }
 
-        if (!descripcion || descripcion.trim() === '' || descripcion === '') {
-            console.error(`❌ agregarGasto: Descripción vacía o no seleccionada`);
-            alert('Por favor, selecciona una categoría de gasto');
+        // Validar descripción - ser más permisivo y específico
+        if (!descripcion || descripcion.trim() === '' || 
+            descripcion === 'Seleccionar categoría...' || 
+            descripcion === 'Seleccionar o escribir...' ||
+            descripcion === '') {
+            console.error(`❌ agregarGasto: Descripción vacía o placeholder: "${descripcion}"`);
+            this.mostrarMensaje('Por favor, selecciona una categoría de gasto', 'error');
+            this.procesandoGasto = false;
             return;
         }
 
-        if (isNaN(importe) || importe <= 0) {
-            console.error(`❌ agregarGasto: Importe inválido: ${importe}`);
-            alert('Por favor, introduce un importe válido mayor a 0');
+        // Validar importe - ser más permisivo con números
+        const importeValue = importeElement.value.trim();
+        if (!importeValue || importeValue === '' || isNaN(importe) || importe <= 0) {
+            console.error(`❌ agregarGasto: Importe inválido: "${importeValue}" -> ${importe}`);
+            this.mostrarMensaje('Por favor, introduce un importe válido mayor a 0', 'error');
+            this.procesandoGasto = false;
             return;
         }
 
         console.log(`✅ agregarGasto: Todos los campos son válidos`);
+        
+        // Convertir fecha de YYYY-MM-DD a dd-mm-aa
+        const fechaFormateada = this.formatearFecha(fecha);
+        console.log(`📅 agregarGasto: Fecha original: "${fecha}", formateada: "${fechaFormateada}"`);
+        
         const nuevoGasto = {
             id: Date.now(),
-            fecha: fecha,
+            fecha: fechaFormateada,
             descripcion: descripcion,
             importe: importe
         };
@@ -443,6 +570,9 @@ class GestorGastos {
         // Mostrar mensaje de éxito
         console.log(`✅ agregarGasto: Gasto agregado exitosamente`);
         this.mostrarMensaje('Gasto agregado correctamente', 'success');
+        
+        // Resetear flag de procesamiento
+        this.procesandoGasto = false;
     }
 
     // Obtener prefijo del formulario
@@ -465,9 +595,18 @@ class GestorGastos {
             fechaInput.value = obtenerFechaActual();
         }
         
-        document.getElementById(`descripcion-${formPrefix}`).value = '';
-        document.getElementById(`descripcion-custom-${formPrefix}`).value = '';
-        document.getElementById(`descripcion-custom-${formPrefix}`).style.display = 'none';
+        // Restablecer a las opciones por defecto en lugar de vacío
+        const descripcionSelect = document.getElementById(`descripcion-${formPrefix}`);
+        if (descripcionSelect) {
+            descripcionSelect.selectedIndex = 1; // Seleccionar primera opción válida (no el placeholder)
+        }
+        
+        const descripcionCustom = document.getElementById(`descripcion-custom-${formPrefix}`);
+        if (descripcionCustom) {
+            descripcionCustom.value = '';
+            descripcionCustom.style.display = 'none';
+        }
+        
         document.getElementById(`importe-${formPrefix}`).value = '';
         
         // Limpiar subcategorías de vacaciones si es un gasto variable (código legacy)
@@ -532,9 +671,31 @@ class GestorGastos {
         console.log('✅ Formulario de edición creado y mostrado');
     }
 
+    // Convertir fecha dd-mm-aa a YYYY-MM-DD para inputs
+    convertirFechaParaInput(fecha) {
+        if (!fecha) return '';
+        
+        const parts = fecha.split('-');
+        if (parts.length === 3) {
+            const dia = parts[0];
+            const mes = parts[1];
+            let año = parts[2];
+            
+            // Si el año es de 2 dígitos, asumir siglo 21
+            if (año.length === 2) {
+                año = `20${año}`;
+            }
+            
+            return `${año}-${mes}-${dia}`;
+        }
+        
+        return fecha; // Si no puede convertir, devolver original
+    }
+
     crearFormularioEdicion(gasto, categoria, id) {
-        // Convertir fecha para el campo de fecha (formato YYYY-MM-DD)
-        const fechaParaInput = gasto.fecha.split('-').reverse().join('-');
+        // Convertir fecha dd-mm-aa a YYYY-MM-DD para el input
+        const fechaParaInput = this.convertirFechaParaInput(gasto.fecha);
+        console.log(`📅 Fecha original: "${gasto.fecha}", para input: "${fechaParaInput}"`);
         
         return `
             <div class="edit-form">
@@ -597,7 +758,7 @@ class GestorGastos {
         }
 
         // Convertir fecha al formato dd-mm-aa
-        const fechaFormateada = fecha.split('-').reverse().join('-');
+        const fechaFormateada = this.formatearFecha(fecha);
 
         // Buscar y actualizar el gasto
         const gasto = this.gastos[categoria].find(g => g.id === id);
@@ -695,10 +856,27 @@ class GestorGastos {
 
     // Formatear fecha
     formatearFecha(fecha) {
+        // Si la fecha ya está en formato dd-mm-aa, devolverla tal como está
+        if (fecha.includes('-') && fecha.split('-').length === 3) {
+            const parts = fecha.split('-');
+            // Si el primer elemento tiene 4 dígitos, es YYYY-MM-DD
+            if (parts[0].length === 4) {
+                // Convertir de YYYY-MM-DD a dd-mm-aa
+                const date = new Date(fecha);
+                const dia = String(date.getDate()).padStart(2, '0');
+                const mes = String(date.getMonth() + 1).padStart(2, '0');
+                const año = String(date.getFullYear()).slice(-2);
+                return `${dia}-${mes}-${año}`;
+            }
+            // Si ya está en formato dd-mm-aa, devolverla tal como está
+            return fecha;
+        }
+        
+        // Para otros formatos, intentar conversión estándar
         const date = new Date(fecha);
         const dia = String(date.getDate()).padStart(2, '0');
-        const mes = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() devuelve 0-11
-        const año = String(date.getFullYear()).slice(-2); // Últimos 2 dígitos del año
+        const mes = String(date.getMonth() + 1).padStart(2, '0');
+        const año = String(date.getFullYear()).slice(-2);
         return `${dia}-${mes}-${año}`;
     }
 
@@ -714,6 +892,9 @@ class GestorGastos {
         // document.getElementById('total-variables').textContent = `${totalVariables.toFixed(2)} €`;
         // document.getElementById('total-vacaciones').textContent = `${totalVacaciones.toFixed(2)} €`;
         // document.getElementById('total-general').textContent = `${totalGeneral.toFixed(2)} €`;
+        
+        // Actualizar filtro de mes con nuevos datos
+        this.inicializarFiltroMes();
         
         this.actualizarResumenDetallado();
     }
@@ -909,21 +1090,27 @@ class GestorGastos {
 
     // Guardar datos (Firebase + fallback localStorage)
     async guardarDatos() {
+        // Siempre guardar en localStorage primero (más rápido y confiable)
+        localStorage.setItem('gastosApp', JSON.stringify(this.gastos));
+        console.log('💾 Datos guardados localmente');
+
         try {
             if (firebaseDB.isAvailable()) {
-                console.log('💾 Guardando en Firebase...');
+                console.log('☁️ Intentando sincronizar con la nube...');
                 await firebaseDB.guardarGastos(this.gastos);
-                console.log('✅ Datos guardados en la nube');
-                
-                // También guardar en localStorage como backup
-                localStorage.setItem('gastosApp', JSON.stringify(this.gastos));
+                console.log('✅ Datos sincronizados con la nube');
             } else {
-                throw new Error('Firebase no disponible');
+                console.log('ℹ️ Firebase no disponible, datos guardados solo localmente');
             }
         } catch (error) {
-            console.warn('⚠️ Error con Firebase, guardando localmente:', error.message);
-            // Fallback a localStorage
-            localStorage.setItem('gastosApp', JSON.stringify(this.gastos));
+            // Solo logear el error, no mostrar al usuario ya que los datos están guardados localmente
+            if (error.code === 'permission-denied' || error.message.includes('permissions')) {
+                console.warn('⚠️ Permisos de Firebase no configurados. Los datos se guardan localmente.');
+                console.warn('💡 Para habilitar sincronización en la nube, configura las reglas de Firebase.');
+            } else {
+                console.warn('⚠️ Error al sincronizar con la nube:', error.message);
+            }
+            // Los datos ya están guardados en localStorage, así que la operación es exitosa
         }
     }
 
@@ -956,7 +1143,12 @@ class GestorGastos {
                 throw new Error('Firebase no disponible');
             }
         } catch (error) {
-            console.warn('⚠️ Error con Firebase, cargando localmente:', error.message);
+            // Manejar errores de permisos de forma silenciosa
+            if (error.code === 'permission-denied' || error.message.includes('permissions')) {
+                console.log('ℹ️ Firebase no configurado, cargando datos locales');
+            } else {
+                console.warn('⚠️ Error con Firebase, cargando localmente:', error.message);
+            }
             
             // Fallback a localStorage
             const datosGuardados = localStorage.getItem('gastosApp');
@@ -1178,6 +1370,85 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`   Descripción: ${descEl ? descEl.value : 'NO ENCONTRADO'}`);
             console.log(`   Importe: ${importeEl ? importeEl.value : 'NO ENCONTRADO'}`);
         });
+    };
+
+    // Función para probar agregado de gasto sin validaciones
+    window.testAgregarGasto = function(categoria = 'vacaciones') {
+        console.log(`🧪 Test: Intentando agregar gasto a ${categoria}`);
+        const formPrefix = gestor.getFormPrefix(categoria);
+        
+        // Llenar campos automáticamente para testing
+        const fechaEl = document.getElementById(`fecha-${formPrefix}`);
+        const descEl = document.getElementById(`descripcion-${formPrefix}`);
+        const importeEl = document.getElementById(`importe-${formPrefix}`);
+        
+        if (fechaEl && !fechaEl.value) fechaEl.value = obtenerFechaActual();
+        if (descEl && descEl.value === '') descEl.selectedIndex = 1; // Seleccionar primera opción válida
+        if (importeEl && !importeEl.value) importeEl.value = '25.50';
+        
+        console.log('🔄 Campos llenados automáticamente para test');
+        window.debugFormularios();
+        
+        // Intentar agregar el gasto
+        gestor.agregarGasto(categoria);
+    };
+
+    // Función para probar conversiones de fecha
+    window.testFechas = function() {
+        console.log('🧪 Probando conversiones de fecha:');
+        const fechaInput = '2025-10-25'; // Formato del input
+        const fechaFormateada = gestor.formatearFecha(fechaInput);
+        const fechaParaInput = gestor.convertirFechaParaInput(fechaFormateada);
+        
+        console.log(`📅 Input original: ${fechaInput}`);
+        console.log(`📅 Formateada (dd-mm-aa): ${fechaFormateada}`);
+        console.log(`📅 Vuelta a input (YYYY-MM-DD): ${fechaParaInput}`);
+        console.log(`✅ Conversión exitosa: ${fechaInput === fechaParaInput ? 'SÍ' : 'NO'}`);
+    };
+
+    // Función para corregir fechas existentes con años problemáticos
+    window.corregirFechas = function() {
+        console.log('🔧 Corrigiendo fechas con años problemáticos...');
+        let gastosCorregidos = 0;
+        
+        ['fijosMensuales', 'variablesMensuales', 'vacaciones'].forEach(categoria => {
+            gestor.gastos[categoria].forEach(gasto => {
+                if (gasto.fecha) {
+                    const fechaParts = gasto.fecha.split('-');
+                    if (fechaParts.length === 3) {
+                        const dia = fechaParts[0];
+                        const mes = fechaParts[1];
+                        let año = fechaParts[2];
+                        
+                        // Si el año es de 2 dígitos y resulta en un año irreal
+                        if (año.length === 2) {
+                            const añoCompleto = `20${año}`;
+                            const añoNum = parseInt(añoCompleto);
+                            const añoActual = new Date().getFullYear();
+                            
+                            // Solo corregir si el año es razonable (últimos 10 años o próximos 2)
+                            if (añoNum < añoActual - 10 || añoNum > añoActual + 2) {
+                                console.log(`⚠️ Fecha problemática encontrada: ${gasto.fecha}`);
+                                // Cambiar a año actual
+                                const nuevaFecha = `${dia}-${mes}-25`; // Asumir 2025
+                                console.log(`🔄 Corrigiendo a: ${nuevaFecha}`);
+                                gasto.fecha = nuevaFecha;
+                                gastosCorregidos++;
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
+        if (gastosCorregidos > 0) {
+            console.log(`✅ Se corrigieron ${gastosCorregidos} fechas`);
+            gestor.guardarDatos();
+            gestor.actualizarResumen();
+            console.log('💾 Datos guardados y resumen actualizado');
+        } else {
+            console.log('ℹ️ No se encontraron fechas que necesiten corrección');
+        }
     };
     
     // Establecer fecha actual por defecto en todos los inputs de fecha
