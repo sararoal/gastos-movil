@@ -659,43 +659,12 @@ class GestorGastos {
 
     // Eliminar gasto
     eliminarGasto(categoria, id) {
-        console.log('🗑️ Iniciando eliminación de gasto:', { categoria, id });
-        
         if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
-            console.log('✅ Usuario confirmó eliminación');
-            
-            // Contar gastos antes
-            const gastosAntes = this.gastos[categoria].length;
-            console.log('📊 Gastos antes de eliminar:', gastosAntes);
-            
-            // Eliminar el gasto
             this.gastos[categoria] = this.gastos[categoria].filter(gasto => gasto.id !== id);
-            
-            // Contar gastos después
-            const gastosDespues = this.gastos[categoria].length;
-            console.log('📊 Gastos después de eliminar:', gastosDespues);
-            
-            if (gastosAntes > gastosDespues) {
-                console.log('✅ Gasto eliminado exitosamente');
-                
-                // Guardar y actualizar interfaz
-                this.guardarDatos();
-                console.log('💾 Datos guardados');
-                
-                this.mostrarGastos();
-                console.log('🔄 Lista de gastos actualizada');
-                
-                this.actualizarResumen();
-                console.log('📊 Resumen actualizado');
-                
-                this.mostrarMensaje('Gasto eliminado correctamente', 'success');
-                console.log('✅ Mensaje de éxito mostrado');
-            } else {
-                console.error('❌ Error: El gasto no se eliminó correctamente');
-                this.mostrarMensaje('Error al eliminar el gasto', 'error');
-            }
-        } else {
-            console.log('❌ Usuario canceló la eliminación');
+            this.guardarDatos();
+            this.mostrarGastos();
+            this.actualizarResumen();
+            this.mostrarMensaje('Gasto eliminado correctamente', 'success');
         }
     }
 
@@ -887,7 +856,19 @@ class GestorGastos {
             'Hipoteca': '🏠',
             'Banco': '🏦',
             'Casa': '🏠',
-            'Trabajo': '💼'
+            'Trabajo': '💼',
+            'Coche': '🚗',
+            'Auto': '🚗',
+            'Automóvil': '🚗',
+            'Vehículo': '🚗',
+            'Car': '🚗',
+            'Avión': '✈️',
+            'Avion': '✈️',
+            'Vuelo': '✈️',
+            'Viaje': '✈️',
+            'Aeropuerto': '✈️',
+            'Billete': '🎫',
+            'Entrada': '🎫'
         };
         
         // Buscar coincidencia exacta primero
@@ -939,7 +920,6 @@ class GestorGastos {
                     <div class="gasto-info">
                         <div class="gasto-descripcion">
                             ${this.getIconForCategory(gasto.descripcion)}${this.getIconForCategory(gasto.descripcion) ? ' ' : ''}${gasto.descripcion}
-                            ${gasto.categoria ? `<span class="categoria-badge">${gasto.categoria}</span>` : ''}
                         </div>
                         <div class="gasto-fecha">
                             <i class="fas fa-calendar"></i> ${this.formatearFecha(gasto.fecha)}
