@@ -2,16 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="                            <select id="descripcion-variable-mensual" required>
-                                <option value="">Seleccionar gasto...</option>
-                                <option value="Luz"><i class="fas fa-lightbulb"></i> Luz</option>
-                                <option value="Agua"><i class="fas fa-tint"></i> Agua</option>
-                                <option value="Supermercado"><i class="fas fa-shopping-cart"></i> Supermercado</option>
-                                <option value="Gasolina"><i class="fas fa-gas-pump"></i> Gasolina</option>
-                                <option value="Restaurantes"><i class="fas fa-utensils"></i> Restaurantes</option>
-                                <option value="Ocio"><i class="fas fa-gamepad"></i> Ocio</option>
-                                <option value="custom"><i class="fas fa-plus"></i> Otro (personalizado)</option>
-                            </select>content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gestión de Gastos Móvil</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -47,14 +38,16 @@
                         </div>
                         <div class="form-group">
                             <label for="descripcion-fijo-mensual">Descripción:</label>
-                            <select id="descripcion-fijo-mensual">
-                                <option value="">Seleccionar o escribir...</option>
-                                <option value="Hipoteca" selected>Hipoteca</option>
-                                <option value="Internet">Internet</option>
-                                <option value="Seguro de Vida">Seguro de Vida</option>
-                                <option value="Seguro del Hogar">Seguro del Hogar</option>
-                                <option value="custom">Otro (personalizado)</option>
-                            </select>
+                            <div class="custom-select">
+                                <select id="descripcion-fijo-mensual">
+                                    <option value="">Seleccionar gasto fijo...</option>
+                                    <option value="Hipoteca" selected>🏠 Hipoteca</option>
+                                    <option value="Internet">🌐 Internet</option>
+                                    <option value="Seguro de Vida">🛡️ Seguro de Vida</option>
+                                    <option value="Seguro del Hogar">🏡 Seguro del Hogar</option>
+                                    <option value="custom">➕ Otro (personalizado)</option>
+                                </select>
+                            </div>
                             <input type="text" id="descripcion-custom-fijo-mensual" placeholder="Descripción personalizada" style="display: none;">
                         </div>
                         <div class="form-group">
@@ -94,16 +87,18 @@
                         </div>
                         <div class="form-group">
                             <label for="descripcion-variable-mensual">Descripción:</label>
-                            <select id="descripcion-variable-mensual">
-                                <option value="">Seleccionar o escribir...</option>
-                                <option value="Luz" selected>Luz</option>
-                                <option value="Agua">Agua</option>
-                                <option value="Supermercado">Supermercado</option>
-                                <option value="Gasolina">Gasolina</option>
-                                <option value="Restaurantes">Restaurantes</option>
-                                <option value="Ocio">Ocio</option>
-                                <option value="custom">Otro (personalizado)</option>
-                            </select>
+                            <div class="custom-select">
+                                <select id="descripcion-variable-mensual" required>
+                                    <option value="">Seleccionar gasto...</option>
+                                    <option value="Luz">💡 Luz</option>
+                                    <option value="Agua">💧 Agua</option>
+                                    <option value="Supermercado">🛒 Supermercado</option>
+                                    <option value="Gasolina">⛽ Gasolina</option>
+                                    <option value="Restaurantes">🍽️ Restaurantes</option>
+                                    <option value="Ocio">🎭 Ocio</option>
+                                    <option value="custom">➕ Otro (personalizado)</option>
+                                </select>
+                            </div>
                             <input type="text" id="descripcion-custom-variable-mensual" placeholder="Descripción personalizada" style="display: none;">
                         </div>
                         <div class="form-group">
@@ -143,16 +138,18 @@
                         </div>
                         <div class="form-group">
                             <label for="descripcion-vacacion">Categoría de Vacaciones:</label>
-                            <select id="descripcion-vacacion" required>
-                                <option value="">Seleccionar categoría...</option>
-                                <option value="Avión"><i class="fas fa-plane"></i> Avión</option>
-                                <option value="Hotel" selected><i class="fas fa-bed"></i> Hotel</option>
-                                <option value="Coche"><i class="fas fa-car"></i> Coche</option>
-                                <option value="Gasolina"><i class="fas fa-gas-pump"></i> Gasolina</option>
-                                <option value="Restaurante"><i class="fas fa-utensils"></i> Restaurante</option>
-                                <option value="Ocio"><i class="fas fa-cocktail"></i> Ocio</option>
-                                <option value="custom"><i class="fas fa-plus"></i> Otro (personalizado)</option>
-                            </select>
+                            <div class="custom-select">
+                                <select id="descripcion-vacacion" required>
+                                    <option value="">Seleccionar categoría...</option>
+                                    <option value="Avión">✈️ Vuelo</option>
+                                    <option value="Hotel" selected>🏨 Hotel</option>
+                                    <option value="Coche">🚗 Coche</option>
+                                    <option value="Gasolina">⛽ Gasolina</option>
+                                    <option value="Restaurante">🍽️ Restaurante</option>
+                                    <option value="Ocio">🍹 Ocio</option>
+                                    <option value="custom">➕ Otro (personalizado)</option>
+                                </select>
+                            </div>
                             <input type="text" id="descripcion-custom-vacacion" placeholder="Descripción personalizada" style="display: none;">
                         </div>
                         <div class="form-group">
@@ -182,9 +179,11 @@
                 <!-- Filtro por fecha -->
                 <div class="filtro-fecha">
                     <label for="filtro-mes">Filtrar por mes:</label>
-                    <select id="filtro-mes" class="form-select">
-                        <option value="todos">Todos los meses</option>
-                    </select>
+                    <div class="custom-select">
+                        <select id="filtro-mes" class="form-select">
+                            <option value="todos">📅 Todos los meses</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="resumen-filtros">
@@ -317,6 +316,6 @@
         });
     </script>
     
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js?v=9"></script>
 </body>
 </html>

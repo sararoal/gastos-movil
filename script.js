@@ -432,7 +432,36 @@ class GestorGastos {
             } else {
                 console.error('❌ setupEventListeners: form-vacaciones NO ENCONTRADO');
             }
+
+            // Event listeners para botones de editar y eliminar
+            this.setupActionButtonListeners();
         }, 100);
+    }
+
+    // Configurar event listeners para botones de acción (editar/eliminar)
+    setupActionButtonListeners() {
+        // Usar delegación de eventos para botones dinámicos
+        document.addEventListener('click', (e) => {
+            // Botón de editar
+            if (e.target.closest('.btn-edit')) {
+                const button = e.target.closest('.btn-edit');
+                const categoria = button.dataset.categoria;
+                const gastoId = button.dataset.gastoId;
+                
+                console.log('🔧 Click en editar:', { categoria, gastoId });
+                this.editarGasto(categoria, gastoId);
+            }
+            
+            // Botón de eliminar
+            if (e.target.closest('.btn-delete')) {
+                const button = e.target.closest('.btn-delete');
+                const categoria = button.dataset.categoria;
+                const gastoId = button.dataset.gastoId;
+                
+                console.log('🗑️ Click en eliminar:', { categoria, gastoId });
+                this.eliminarGasto(categoria, gastoId);
+            }
+        });
     }
 
     // Agregar nuevo gasto
@@ -630,12 +659,43 @@ class GestorGastos {
 
     // Eliminar gasto
     eliminarGasto(categoria, id) {
+        console.log('🗑️ Iniciando eliminación de gasto:', { categoria, id });
+        
         if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
+            console.log('✅ Usuario confirmó eliminación');
+            
+            // Contar gastos antes
+            const gastosAntes = this.gastos[categoria].length;
+            console.log('📊 Gastos antes de eliminar:', gastosAntes);
+            
+            // Eliminar el gasto
             this.gastos[categoria] = this.gastos[categoria].filter(gasto => gasto.id !== id);
-            this.guardarDatos();
-            this.mostrarGastos();
-            this.actualizarResumen();
-            this.mostrarMensaje('Gasto eliminado correctamente', 'success');
+            
+            // Contar gastos después
+            const gastosDespues = this.gastos[categoria].length;
+            console.log('📊 Gastos después de eliminar:', gastosDespues);
+            
+            if (gastosAntes > gastosDespues) {
+                console.log('✅ Gasto eliminado exitosamente');
+                
+                // Guardar y actualizar interfaz
+                this.guardarDatos();
+                console.log('💾 Datos guardados');
+                
+                this.mostrarGastos();
+                console.log('🔄 Lista de gastos actualizada');
+                
+                this.actualizarResumen();
+                console.log('📊 Resumen actualizado');
+                
+                this.mostrarMensaje('Gasto eliminado correctamente', 'success');
+                console.log('✅ Mensaje de éxito mostrado');
+            } else {
+                console.error('❌ Error: El gasto no se eliminó correctamente');
+                this.mostrarMensaje('Error al eliminar el gasto', 'error');
+            }
+        } else {
+            console.log('❌ Usuario canceló la eliminación');
         }
     }
 
@@ -795,6 +855,58 @@ class GestorGastos {
         }
     }
 
+    // Obtener ícono según la categoría/descripción del gasto
+    getIconForCategory(descripcion) {
+        // Verificar si la descripción ya contiene un emoji (más simple)
+        const tieneEmoji = /[\u{1F000}-\u{1F9FF}]|[\u{2600}-\u{27BF}]/u.test(descripcion);
+        if (tieneEmoji) {
+            return ''; // No agregar ícono si ya tiene uno
+        }
+        
+        const iconMap = {
+            'Luz': '💡',
+            'Agua': '💧',
+            'Supermercado': '🛒',
+            'Gasolina': '⛽',
+            'Restaurantes': '🍽️',
+            'Ocio': '🎭',
+            'Hotel': '🏨',
+            'Transporte': '🚗',
+            'Medicina': '💊',
+            'Ropa': '👕',
+            'Café': '☕',
+            'Cine': '🎬',
+            'Taxi': '🚕',
+            'Metro': '🚇',
+            'Parking': '🅿️',
+            'Gimnasio': '💪',
+            'Libros': '📚',
+            'Internet': '🌐',
+            'Teléfono': '📱',
+            'Seguro': '🛡️',
+            'Hipoteca': '🏠',
+            'Banco': '🏦',
+            'Casa': '🏠',
+            'Trabajo': '💼'
+        };
+        
+        // Buscar coincidencia exacta primero
+        if (iconMap[descripcion]) {
+            return iconMap[descripcion];
+        }
+        
+        // Buscar coincidencia parcial (insensible a mayúsculas)
+        const descripcionLower = descripcion.toLowerCase();
+        for (const [key, icon] of Object.entries(iconMap)) {
+            if (descripcionLower.includes(key.toLowerCase()) || key.toLowerCase().includes(descripcionLower)) {
+                return icon;
+            }
+        }
+        
+        // Ícono por defecto solo para gastos sin emoji
+        return '';
+    }
+
     // Mostrar gastos en las listas
     mostrarGastos() {
         this.mostrarCategoria('fijosMensuales', 'lista-fijos-mensuales');
@@ -826,7 +938,7 @@ class GestorGastos {
                 <div class="gasto-header">
                     <div class="gasto-info">
                         <div class="gasto-descripcion">
-                            ${gasto.esDelJSON ? '<i class="fas fa-database"></i> ' : gasto.esPredefinido ? '<i class="fas fa-star"></i> ' : ''}${gasto.descripcion}
+                            ${this.getIconForCategory(gasto.descripcion)}${this.getIconForCategory(gasto.descripcion) ? ' ' : ''}${gasto.descripcion}
                             ${gasto.categoria ? `<span class="categoria-badge">${gasto.categoria}</span>` : ''}
                         </div>
                         <div class="gasto-fecha">
@@ -836,13 +948,13 @@ class GestorGastos {
                     <div class="gasto-right">
                         <div class="gasto-top-right">
                             <div class="gasto-importe">${gasto.importe.toFixed(2)} €</div>
-                            <button class="btn-icon btn-edit" onclick="gestor.editarGasto('${categoria}', '${gasto.id}')" title="Editar">
+                            <button class="btn-icon btn-edit" data-action="edit" data-categoria="${categoria}" data-gasto-id="${gasto.id}" title="Editar">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
                                     <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.5.5 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11z"/>
                                 </svg>
                             </button>
                         </div>
-                        <button class="btn-icon btn-delete" onclick="gestor.eliminarGasto('${categoria}', '${gasto.id}')" title="Eliminar">
+                        <button class="btn-icon btn-delete" data-action="delete" data-categoria="${categoria}" data-gasto-id="${gasto.id}" title="Eliminar">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
                                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>

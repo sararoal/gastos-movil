@@ -25,9 +25,11 @@ body {
     background: #000000;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(102, 205, 170, 0.3);
-    overflow: hidden;
+    overflow: visible;
     min-height: calc(100vh - 20px);
     border: 2px solid #66CDAA;
+    position: relative;
+    z-index: 1;
 }
 
 /* Header */
@@ -89,10 +91,14 @@ header h1 i {
 .tab-content {
     display: none;
     padding: 20px;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
 }
 
 .tab-content.active {
     display: block;
+    overflow: visible;
 }
 
 /* Secciones */
@@ -124,6 +130,9 @@ header h1 i {
 
 .form-group {
     margin-bottom: 15px;
+    position: relative;
+    overflow: visible;
+    z-index: 5;
 }
 
 .form-group label {
@@ -150,6 +159,8 @@ header h1 i {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    position: relative;
+    z-index: 10;
 }
 
 /* Estilos específicos para input de fecha */
@@ -1436,5 +1447,53 @@ header h1 i {
     
     .edit-form-header h4 {
         font-size: 1rem;
+    }
+}
+
+/* Dropdown personalizado para mantener dentro de la app */
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.custom-select select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #000000 url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%2366CDAA' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>") no-repeat right 12px center;
+    background-size: 12px;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+}
+
+.custom-select select:focus {
+    outline: none;
+    border-color: #66CDAA;
+    box-shadow: 0 0 0 2px rgba(102, 205, 170, 0.2);
+}
+
+/* Estilos para opciones en móviles */
+@media (max-width: 768px) {
+    .custom-select select {
+        font-size: 16px !important; /* Previene zoom en iOS */
+        border-radius: 12px;
+        background-color: #000000;
+        color: #ffffff;
+        border: 2px solid #20B2AA;
+        padding: 14px 40px 14px 16px;
+    }
+    
+    .custom-select select option {
+        background-color: #000000;
+        color: #ffffff;
+        padding: 10px;
+        font-size: 16px;
+    }
+    
+    .custom-select select option:checked {
+        background-color: #20B2AA;
+        color: #ffffff;
     }
 }
